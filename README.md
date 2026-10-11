@@ -250,3 +250,27 @@ Repo có 2 workflow:
 - `lab4-imdb-smoke`: chạy kiểm tra nhanh với IMDB thật, chỉ chạy thủ công qua `workflow_dispatch` để tránh tốn thời gian ở mỗi lần push.
 
 CI chỉ kiểm tra repo có chạy được và sinh artefact cơ bản. CI **không thay thế** cho báo cáo phân tích học thuật.
+
+
+---
+
+## Part B (bổ sung) — VietNewsSense Long-Context Transfer Check
+
+**Part A — IMDB vẫn là bài lab chính**, giữ nguyên pipeline LSTM/GRU, ablation và cách đánh giá hiện tại. Phần B nối tiếp kết quả Vietnamese sequence audit của **Lab 3**, không huấn luyện lại mô hình phân loại tiếng Việt.
+
+**Tài liệu giao sinh viên:** [docs/VIETNEWS_PART_B.md](docs/VIETNEWS_PART_B.md)  
+**Mẫu báo cáo:** [reports/vietnews_transfer_lab4.md](reports/vietnews_transfer_lab4.md)
+
+Trong repo Lab 3, chạy **run_vietnews_sequence_audit.py** hai lần với max_len=128 và max_len=256, cùng dữ liệu, seed, vocab_size và tokenizer. Sau đó, từ thư mục Lab 4:
+
+~~~bash
+python scripts/compare_vietnews_audits.py \
+  --len128 ../csc4007_lab3_starter_kit/outputs/vietnews/lab4_len128/transfer_comparison.csv \
+  --len256 ../csc4007_lab3_starter_kit/outputs/vietnews/lab4_len256/transfer_comparison.csv
+~~~
+
+Kết quả nằm tại outputs/vietnews_lab4. Sinh viên điền bảng thật, phân tích **ba bài báo dài**, nêu lý do không thể phục hồi token đã bị cắt và đề xuất lựa chọn max_len dựa trên bằng chứng.
+
+**Không dùng --dataset local_csv của run_lab4.py để chạy trực tiếp VietNewsSense nhiều lớp.** Lưu ý, script Lab 3 hiện tính UNK rate trên **chuỗi gốc**, nên UNK rate không thay đổi khi chỉ thay max_len. CI chỉ kiểm tra helper và pipeline IMDB, chưa chạy dataset tiếng Việt thật.
+
+**Rubric hiện hành chưa đổi.** Giảng viên cần phê duyệt và công bố trước nếu muốn tính điểm bắt buộc cho Part B.
