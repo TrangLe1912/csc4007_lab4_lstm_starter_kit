@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 import pandas as pd
 from sklearn.model_selection import train_test_split
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # both CLI and imported-test modes
 from scripts.compare_vietnews_audits import compare_audits, save_results
 
 def hashfile(path):
