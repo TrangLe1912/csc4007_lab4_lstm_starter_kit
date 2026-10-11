@@ -35,7 +35,7 @@ Sau bài lab này, sinh viên cần:
 4. So sánh mô hình bằng `accuracy`, `macro-F1`, confusion matrix và learning curves.
 5. Ghi lại cấu hình, kết quả và nhận xét trong báo cáo.
 6. Phân tích lỗi trên ít nhất 10 mẫu dự đoán sai.
-7. Lưu checkpoint mô hình tốt nhất và các artefact cần thiết trong thư mục `outputs/`.
+7. Lưu checkpoint và artefact **riêng cho từng lần chạy** trong `outputs/runs/<run_name>/`.
 
 ---
 
@@ -127,7 +127,7 @@ wandb login
 ## Chạy baseline bắt buộc: Embedding + 1-layer LSTM
 
 ```bash
-python run_lab4.py   --dataset imdb   --seed 42   --model_type lstm   --vocab_size 20000   --max_len 256   --embed_dim 128   --hidden_dim 128   --num_layers 1   --dropout 0.3   --batch_size 64   --epochs 6   --lr 1e-3   --use_wandb
+python run_lab4.py   --dataset imdb --run_name baseline_lstm --seed 42   --model_type lstm   --vocab_size 20000   --max_len 256   --embed_dim 128   --hidden_dim 128   --num_layers 1   --dropout 0.3   --batch_size 64   --epochs 6   --lr 1e-3   --use_wandb
 ```
 
 Đây là cấu trúc cơ bản giảng viên chọn làm điểm xuất phát. Sinh viên **không nên vội nâng cấp** trước khi chạy được baseline và đọc được các output.
@@ -137,12 +137,14 @@ python run_lab4.py   --dataset imdb   --seed 42   --model_type lstm   --vocab_si
 ## Chạy nhanh bằng dữ liệu nhỏ
 
 ```bash
-python run_lab4.py   --dataset local_csv   --data_path data/raw/sample_imdb_tiny.csv   --model_type lstm   --epochs 2   --batch_size 4   --max_len 64   --vocab_size 1000   --embed_dim 32   --hidden_dim 32   --wandb_mode disabled
+python run_lab4.py   --dataset local_csv --run_name smoke_lstm   --data_path data/raw/sample_imdb_tiny.csv   --model_type lstm   --epochs 2   --batch_size 4   --max_len 64   --vocab_size 1000   --embed_dim 32   --hidden_dim 32   --wandb_mode disabled
 ```
 
 Lệnh này dùng để kiểm tra code chạy được, không dùng để kết luận chất lượng mô hình.
 
 ---
+
+**Chống ghi đè:** mỗi `--run_name` tạo một thư mục `outputs/runs/<run_name>/`; nếu tên đã tồn tại, chương trình dừng và yêu cầu chọn tên mới. Nếu không truyền `--run_name`, chương trình tự tạo tên theo model và thời điểm.
 
 ## Gợi ý nâng cấp để đạt accuracy cao hơn
 
@@ -166,16 +168,16 @@ python run_lab4.py   --dataset imdb   --seed 42   --model_type lstm   --bidirect
 python run_lab4.py   --dataset imdb   --seed 42   --model_type gru   --num_layers 2   --bidirectional   --max_len 256   --embed_dim 128   --hidden_dim 128   --dropout 0.4   --epochs 8   --lr 8e-4   --run_name stacked_bigru   --use_wandb
 ```
 
-Sinh viên cần ghi lại kết quả vào `reports/analysis_report.md`, không chỉ nộp code.
+Chạy `python scripts/summarize_ablation.py` để lập `outputs/ablation_validation.csv` và chọn run tốt nhất **theo validation**. Sau khi chốt mô hình, chỉ báo cáo test metrics của mô hình đó; không chọn mô hình dựa trên test. Sinh viên điền kết quả vào `reports/analysis_report.md`.
 
 ---
 
 ## Output sau khi chạy
 
-Repo sẽ sinh các artefact sau:
+Repo sẽ sinh artefact theo **tên run riêng**, không ghi đè các lần chạy:
 
 ```text
-outputs/
+outputs/runs/<run_name>/
 ├── error_analysis/
 │   ├── error_analysis.csv
 │   └── error_analysis_summary.md
@@ -209,8 +211,8 @@ outputs/
 1. Fork repo starter kit về GitHub cá nhân.
 2. Chạy thành công baseline **Embedding + LSTM**.
 3. Thử ít nhất **2 biến thể nâng cấp**.
-4. Lập bảng ablation gồm tối thiểu các cột: `model_type`, `bidirectional`, `num_layers`, `max_len`, `hidden_dim`, `dropout`, `accuracy`, `macro_f1`, nhận xét ngắn.
-5. Phân tích ít nhất 10 mẫu sai trong `outputs/error_analysis/error_analysis.csv`.
+4. Lập bảng ablation theo **validation accuracy và validation macro-F1**; không dùng kết quả test để chọn cấu hình.
+5. Phân tích ít nhất 10 mẫu sai từ `<output run cuối>/error_analysis/error_analysis.csv`.
 6. Điền đầy đủ `reports/analysis_report.md`.
 7. Nộp link GitHub repo cá nhân.
 8. Nếu dùng W&B online, ghi rõ link project/run trong báo cáo.
@@ -274,3 +276,12 @@ Kết quả nằm tại outputs/vietnews_lab4. Sinh viên điền bảng thật,
 **Không dùng --dataset local_csv của run_lab4.py để chạy trực tiếp VietNewsSense nhiều lớp.** Lưu ý, script Lab 3 hiện tính UNK rate trên **chuỗi gốc**, nên UNK rate không thay đổi khi chỉ thay max_len. CI chỉ kiểm tra helper và pipeline IMDB, chưa chạy dataset tiếng Việt thật.
 
 **Rubric hiện hành chưa đổi.** Giảng viên cần phê duyệt và công bố trước nếu muốn tính điểm bắt buộc cho Part B.
+
+
+## VietNewsSense Part B (một lệnh)
+
+Đọc docs/VIETNEWS_PART_B.md. Chạy từ Lab 4:
+
+    python scripts/run_vietnews_part_b.py --lab3_repo ../csc4007_lab3_starter_kit --data_path ../csc4007_lab3_starter_kit/data/raw/vietnewssense.csv
+
+Lệnh tạo fingerprint dữ liệu, danh sách ba bài báo dài và bảng 128/256; không công khai raw corpus. Rubric mới dự kiến Part A 90 điểm, Part B 10 điểm, cần công bố trước khi áp dụng.

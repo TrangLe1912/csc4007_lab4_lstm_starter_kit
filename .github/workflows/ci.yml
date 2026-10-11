@@ -21,6 +21,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Test VietNews deterministic sample selection
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+
       - name: Test VietNews audit comparison helper
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
@@ -30,6 +33,7 @@ jobs:
             --dataset local_csv \
             --data_path data/raw/sample_imdb_tiny.csv \
             --model_type lstm \
+            --run_name ci_lstm \
             --epochs 2 \
             --batch_size 4 \
             --max_len 64 \
@@ -38,22 +42,26 @@ jobs:
             --hidden_dim 32 \
             --wandb_mode disabled
 
+      - name: Check validation ablation export
+        run: |
+          python scripts/summarize_ablation.py --runs_dir outputs/runs --output outputs/ablation_validation.csv
+
       - name: Check required artifacts
         run: |
           python - <<'PY'
           from pathlib import Path
           required = [
-              'outputs/logs/sequence_audit.md',
-              'outputs/logs/run_summary.json',
-              'outputs/metrics/epoch_history.csv',
-              'outputs/metrics/metrics_summary.json',
-              'outputs/metrics/metrics_summary.md',
-              'outputs/figures/loss_curve.png',
-              'outputs/figures/metric_curve.png',
-              'outputs/figures/confusion_matrix.png',
-              'outputs/models/best_model.pt',
-              'outputs/predictions/test_predictions.csv',
-              'outputs/error_analysis/error_analysis.csv',
+              'outputs/runs/ci_lstm/logs/sequence_audit.md',
+              'outputs/runs/ci_lstm/logs/run_summary.json',
+              'outputs/runs/ci_lstm/metrics/epoch_history.csv',
+              'outputs/runs/ci_lstm/metrics/metrics_summary.json',
+              'outputs/runs/ci_lstm/metrics/metrics_summary.md',
+              'outputs/runs/ci_lstm/figures/loss_curve.png',
+              'outputs/runs/ci_lstm/figures/metric_curve.png',
+              'outputs/runs/ci_lstm/figures/confusion_matrix.png',
+              'outputs/runs/ci_lstm/models/best_model.pt',
+              'outputs/runs/ci_lstm/predictions/test_predictions.csv',
+              'outputs/runs/ci_lstm/error_analysis/error_analysis.csv',
           ]
           missing = [p for p in required if not Path(p).exists()]
           if missing:

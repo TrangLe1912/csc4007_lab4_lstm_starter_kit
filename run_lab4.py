@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -48,7 +49,8 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--wandb_project", default="csc4007-lab4-lstm-gru")
     ap.add_argument("--wandb_entity", default=None)
     ap.add_argument("--wandb_mode", default="online", choices=["online", "offline", "disabled"])
-    ap.add_argument("--run_name", default=None)
+    ap.add_argument("--run_name", default=None, help="Safe ID for an isolated run (letters, digits, - _ .)")
+    ap.add_argument("--output_dir", default="outputs/runs", help="Parent directory of per-run outputs")
     ap.add_argument("--baseline_metrics_path", default=None)
     return ap.parse_args()
 
@@ -58,7 +60,13 @@ def main() -> None:
     set_seed(args.seed)
     device = get_device()
 
-    out_dir = Path("outputs")
+    # Every run has its own output directory. Explicit names never overwrite silently.
+    if args.run_name is None:
+        args.run_name = f"{args.model_type}_{'bi' if args.bidirectional else 'uni'}_seed{args.seed}_{datetime.now(timezone.utc):%Y%m%dT%H%M%S%f}"
+    if args.run_name in (".", "..") or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,79}", args.run_name):
+        raise ValueError("--run_name must contain only letters, numbers, underscores, hyphens or dots and must not be a path")
+    out_dir = Path(args.output_dir) / args.run_name
+    out_dir.mkdir(parents=True, exist_ok=False)  # prevents accidental overwriting
     for sub in ["logs", "splits", "metrics", "figures", "models", "predictions", "error_analysis"]:
         ensure_dir(out_dir / sub)
     save_json(vars(args), out_dir / "logs" / "run_config.json")
@@ -141,6 +149,8 @@ def main() -> None:
 
     metrics_summary = {
         "dataset": args.dataset,
+        "run_name": args.run_name,
+        "output_dir": str(out_dir),
         "dataset_path": args.data_path if args.dataset == "local_csv" else None,
         "seed": args.seed,
         "device": str(device),
@@ -181,6 +191,7 @@ def main() -> None:
 
     run_summary = {
         "dataset": args.dataset,
+        "run_name": args.run_name,
         "seed": args.seed,
         "model_type": args.model_type,
         "bidirectional": bool(args.bidirectional),
@@ -201,7 +212,7 @@ def main() -> None:
             "test_loss": test_loss,
         })
     safe_finish(run)
-    print("DONE. Outputs saved under outputs/.")
+    print(f"DONE. Outputs saved under {out_dir}/")
 
 
 if __name__ == "__main__":

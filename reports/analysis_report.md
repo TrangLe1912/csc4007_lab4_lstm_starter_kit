@@ -49,11 +49,17 @@ Nhận xét ngắn về baseline:
 
 Sinh viên cần thử ít nhất 2 biến thể nâng cấp so với baseline.
 
-| Run | model_type | bidirectional | num_layers | max_len | hidden_dim | dropout | Test Accuracy | Test Macro-F1 | Nhận xét |
+| Run | model_type | bidirectional | num_layers | max_len | hidden_dim | dropout | Val Accuracy | Val Macro-F1 | Nhận xét |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---|
 | baseline_lstm | lstm | False | 1 |  |  |  |  |  |  |
 | variant_1 |  |  |  |  |  |  |  |  |  |
 | variant_2 |  |  |  |  |  |  |  |  |  |
+
+**Lựa chọn mô hình dựa trên validation:** chạy `python scripts/summarize_ablation.py`. Chỉ đưa cột **Val Accuracy/Val Macro-F1** vào bảng trên, tuyệt đối không dùng test metric để xếp hạng các run. Mỗi run lưu trong `outputs/runs/<run_name>/` và có thể trích nguồn `metrics/metrics_summary.json`.
+
+- Run được chọn từ validation:
+- Val macro-F1 của run được chọn:
+- Tiêu chí phụ khi hòa điểm:
 
 ## 4. So sánh công bằng
 
@@ -121,8 +127,8 @@ Mô hình tốt nhất của em là:
 
 - Run name:
 - Cấu hình:
-- Test accuracy:
-- Test macro-F1:
+- Test accuracy **chỉ cho mô hình đã chốt bằng validation**:
+- Test macro-F1 **chỉ cho mô hình đã chốt bằng validation**:
 
 Giải thích vì sao mô hình này tốt hơn baseline:
 
@@ -130,6 +136,8 @@ Giải thích vì sao mô hình này tốt hơn baseline:
 
 ## 9. Tự đánh giá
 
+- [ ] Em đã lưu từng run riêng dưới `outputs/runs/`.
+- [ ] Em đã chọn mô hình bằng validation trước khi so kết quả test.
 - [ ] Em đã chạy baseline LSTM.
 - [ ] Em đã thử ít nhất 2 biến thể nâng cấp.
 - [ ] Em đã lưu checkpoint tốt nhất.
