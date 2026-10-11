@@ -276,3 +276,12 @@ Kết quả nằm tại outputs/vietnews_lab4. Sinh viên điền bảng thật,
 **Không dùng --dataset local_csv của run_lab4.py để chạy trực tiếp VietNewsSense nhiều lớp.** Lưu ý, script Lab 3 hiện tính UNK rate trên **chuỗi gốc**, nên UNK rate không thay đổi khi chỉ thay max_len. CI chỉ kiểm tra helper và pipeline IMDB, chưa chạy dataset tiếng Việt thật.
 
 **Rubric hiện hành chưa đổi.** Giảng viên cần phê duyệt và công bố trước nếu muốn tính điểm bắt buộc cho Part B.
+
+
+## VietNewsSense Part B (một lệnh)
+
+Đọc docs/VIETNEWS_PART_B.md. Chạy từ Lab 4:
+
+    python scripts/run_vietnews_part_b.py --lab3_repo ../csc4007_lab3_starter_kit --data_path ../csc4007_lab3_starter_kit/data/raw/vietnewssense.csv
+
+Lệnh tạo fingerprint dữ liệu, danh sách ba bài báo dài và bảng 128/256; không công khai raw corpus. Rubric mới dự kiến Part A 90 điểm, Part B 10 điểm, cần công bố trước khi áp dụng.

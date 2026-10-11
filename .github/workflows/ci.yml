@@ -21,6 +21,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Test VietNews deterministic sample selection
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+
       - name: Test VietNews audit comparison helper
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
